@@ -1,22 +1,50 @@
 <?php
-include'koneksi.php';
+    include'koneksi.php';
+    $id = ''; 
+    if( isset( $_GET['id'])) {
+        $id = $_GET['id']; 
+    } 
+    $msg = '';
+    $code = '';
 
-//Menampilkan semua data
-$hasil  = mysqli_query($koneksi, "select * from users");
-if(mysqli_num_rows($hasil) > 0 ){
-    $response = array();
-    $response["users"] = array();
-    while($x = mysqli_fetch_array($hasil)){
-        $h['id'] = $x["id"];
-        $h['username'] = $x["username"];
-        $h['password'] = $x["password"];
-        $h['level'] = $x["level"];
-        $h['fullname'] = $x["fullname"];
-        array_push($response["users"], $h);
-    }
-    echo json_encode($response);
-}else {
-  $response["message"]="tidak ada data";
-  echo json_encode($response);
-}
+    if (!empty($id))
+    {
+        //Single data with param id
+        $query = mysqli_query($koneksi,"select * from users where id='$id'");
+        if (mysqli_num_rows($query) > 0) {
+            $code = 200;
+            $msg = "Sukses Brather";
+            }else{
+                $code = 204;
+                $msg = "data tidak ditemukan";	
+            }
+    }else
+    {
+        //All Data
+        $query = mysqli_query($koneksi,"select * from users");
+        if (mysqli_num_rows($query) > 0) {
+            $code = 200;
+            $msg = "Sukses Brather";
+            }else{
+                $code = 204;
+                $msg = "data tidak ditemukan";	
+            }
+    };
+    //untuk menjalankan perinta sql
+        # buat array
+        $response = array();
+        $response["success"] = true;
+        $response["data"] = array();
+        $response["message"] = $msg;
+        $response["code"] = $code;
+            while ($row = mysqli_fetch_assoc($query)) {
+                # kerangka format penampilan data json
+                $data['id'] = $row["id"];
+                $data['username'] = $row["username"];
+                $data['password'] = $row["password"];
+                $data['level'] = $row["level"];
+                $data['fullname'] = $row["fullname"];
+                array_push($response["data"], $data);
+            }
+        echo json_encode($response);
 ?>
